@@ -1,5 +1,4 @@
-# export SPARK_KAFKA_VERSION=0.10
-# /spark2.4/bin/pyspark --packages org.apache.spark:spark-sql-kafka-0-10_2.11:2.4.5,com.datastax.spark:spark-cassandra-connector_2.11:2.4.2 --driver-memory 512m --driver-cores 1 --master local[1]
+# /spark2.4/bin/pyspark --driver-memory 512m --driver-cores 1 --master local[1]
 
 from pyspark.sql import functions as F
 from pyspark.sql.types import StructType, StringType, StructField, IntegerType
@@ -33,7 +32,6 @@ my_schema = StructType([
     StructField(name='fraudulent', dataType=StringType(), nullable=True),
     StructField(name='in_balanced_dataset', dataType=StringType(), nullable=True)])
 
-# read the dataset
 my_data = spark \
     .read \
     .format("csv") \
@@ -99,14 +97,11 @@ data_new.write.option("header",True).csv("final_project/new_data")
 train_set.write.option("header",True).csv("final_project/train_set")
 test_set.write.option("header",True).csv("final_project/test_set")
 
-# major_df = train_set.filter(train_set.fraudulent == "f")
-# minor_df = train_set.filter(train_set.fraudulent == "t")
-# ratio = int(major_df.count()/minor_df.count())
-# print("ratio: {}".format(ratio))
-# a = range(ratio)
-#
-# # duplicate the minority rows
-# oversampled_df = minor_df.withColumn("dummy", F.explode(F.array([F.lit(x) for x in a]))).drop('dummy')
-#
-# # combine both oversampled minority rows and previous majority rows
-# combined_train_set = major_df.unionAll(oversampled_df)
+major_df = train_set.filter(train_set.fraudulent == "f")
+minor_df = train_set.filter(train_set.fraudulent == "t")
+ratio = int(major_df.count()/minor_df.count())
+print("ratio: {}".format(ratio))
+a = range(ratio)
+
+oversampled_df = minor_df.withColumn("dummy", F.explode(F.array([F.lit(x) for x in a]))).drop('dummy')
+combined_train_set = major_df.unionAll(oversampled_df)
