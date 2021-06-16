@@ -1,4 +1,3 @@
-# export SPARK_KAFKA_VERSION=0.10
 # /spark2.4/bin/pyspark --driver-memory 512m --driver-cores 1 --master local[1]
 
 from pyspark.sql import SparkSession
